@@ -192,7 +192,7 @@ func (c Pixel565) RGBA() (r, g, b, a uint32) {
 	return r, g, b, 0xffff
 }
 
-// RGB565Model is the color model for black and white images.
+// RGB565Model is the color model for RGB565 images.
 var RGB565Model color.Model = color.ModelFunc(rgb565Model)
 
 func rgb565Model(c color.Color) color.Color {
