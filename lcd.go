@@ -125,7 +125,7 @@ func NewRGB565(r image.Rectangle) *RGB565 {
 func newRGB565With(pix []byte, r image.Rectangle) (*RGB565, error) {
 	w, h := r.Dx(), r.Dy()
 	if len(pix) != 2*w*h {
-		return nil, errors.New("ev3dev: bad pixel565 buffer length")
+		return nil, errors.New("ev3dev: bad pixel buffer length")
 	}
 	return &RGB565{Pix: pix, Rect: r}, nil
 }
@@ -171,23 +171,23 @@ func (p *RGB565) pixOffset(x, y int) int {
 	return 2*(x-p.Rect.Min.X) + (y-p.Rect.Min.Y)*2*p.Rect.Dx()
 }
 
-// Pixel565 is a black and white monochrome pixel565.
+// Pixel565 is an RGB565 pixel.
 type Pixel565 uint16
 
 // RGBA returns the RGBA values for the receiver.
 func (c Pixel565) RGBA() (r, g, b, a uint32) {
 	r = uint32(c&0xf800) >> (11 - 3) // Shift to align high bit to bit 7.
 	r |= r >> 5                      // Adjust by highest 3 bits.
-	r |= r << 8                      // Scale to 16 bits.
+	r |= r << 8
 
 	g = uint32(c&0x7e0) >> (5 - 2) // Shift to align high bit to bit 7.
 	g |= g >> 6                    // Adjust by highest 2 bits.
-	g |= g << 8                    // Scale to 16 bits.
+	g |= g << 8
 
 	b = uint32(c & 0x1f)
 	b <<= 3     // Shift to align high bit to bit 7.
 	b |= b >> 5 // Adjust by highest 3 bits.
-	b |= b << 8 // Scale to 16 bits.
+	b |= b << 8
 
 	return r, g, b, 0xffff
 }
@@ -203,5 +203,5 @@ func rgb565Model(c color.Color) color.Color {
 	r >>= 3
 	g >>= 2
 	b >>= 3
-	return Pixel565(r<<11 | g<<5 | b)
+	return Pixel565((r&0x1f)<<11 | (g&0x3f)<<5 | b&0x1f)
 }
