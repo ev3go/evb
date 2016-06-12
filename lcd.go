@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	// LCDWidth is the width of the LCD screen in pixel565.
+	// LCDWidth is the width of the LCD screen in pixels.
 	LCDWidth = 220
 
-	// LCDHeight is the height of the LCD screen in pixel565.
+	// LCDHeight is the height of the LCD screen in pixels.
 	LCDHeight = 176
 
 	// LCDStride is the width of the LCD screen memory in bytes.
