@@ -92,20 +92,35 @@ func (p *RGB565) pixOffset(x, y int) int {
 // Pixel565 is an RGB565 pixel.
 type Pixel565 uint16
 
+const (
+	rwid = 5
+	gwid = 6
+	bwid = 5
+
+	boff = 0
+	goff = boff + bwid
+	roff = goff + gwid
+
+	rmask = 1<<rwid - 1
+	gmask = 1<<gwid - 1
+	bmask = 1<<bwid - 1
+
+	bytewid = 8
+)
+
 // RGBA returns the RGBA values for the receiver.
 func (c Pixel565) RGBA() (r, g, b, a uint32) {
-	r = uint32(c&0xf800) >> (11 - 3) // Shift to align high bit to bit 7.
-	r |= r >> 5                      // Adjust by highest 3 bits.
-	r |= r << 8
+	r = uint32(c&(rmask<<roff)) >> (roff - (bytewid - rwid)) // Shift to align high bit to bit 7.
+	r |= r >> rwid                                           // Adjust by highest 3 bits.
+	r |= r << bytewid
 
-	g = uint32(c&0x7e0) >> (5 - 2) // Shift to align high bit to bit 7.
-	g |= g >> 6                    // Adjust by highest 2 bits.
-	g |= g << 8
+	g = uint32(c&(gmask<<goff)) >> (goff - (bytewid - gwid)) // Shift to align high bit to bit 7.
+	g |= g >> gwid                                           // Adjust by highest 2 bits.
+	g |= g << bytewid
 
-	b = uint32(c & 0x1f)
-	b <<= 3     // Shift to align high bit to bit 7.
-	b |= b >> 5 // Adjust by highest 3 bits.
-	b |= b << 8
+	b = uint32(c&bmask) << (bytewid - bwid) // Shift to align high bit to bit 7.
+	b |= b >> bwid                          // Adjust by highest 3 bits.
+	b |= b << bytewid
 
 	return r, g, b, 0xffff
 }
@@ -118,8 +133,8 @@ func rgb565Model(c color.Color) color.Color {
 		return c
 	}
 	r, g, b, _ := c.RGBA()
-	r >>= 3
-	g >>= 2
-	b >>= 3
-	return Pixel565((r&0x1f)<<11 | (g&0x3f)<<5 | b&0x1f)
+	r >>= (bytewid - rwid)
+	g >>= (bytewid - gwid)
+	b >>= (bytewid - bwid)
+	return Pixel565((r&rmask)<<roff | (g&gmask)<<goff | b&bmask)
 }
