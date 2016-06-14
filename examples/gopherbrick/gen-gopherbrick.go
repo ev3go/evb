@@ -15,7 +15,7 @@ import (
 
 	"github.com/kortschak/utter"
 
-	"github.com/ev3go/evb"
+	"github.com/ev3go/ev3dev/fb"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("failed to decode gopherbrick image file: %v", err)
 	}
 
-	dst := evb.NewRGB565(src.Bounds())
+	dst := fb.NewRGB565(src.Bounds())
 	draw.Draw(dst, dst.Bounds(), src, src.Bounds().Min, draw.Src)
 
 	utter.Config.ElideType = true
@@ -63,6 +63,7 @@ import (
 	"image/draw"
 	"time"
 
+	"github.com/ev3go/ev3dev/fb"
 	"github.com/ev3go/evb"
 )
 
