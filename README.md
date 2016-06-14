@@ -15,6 +15,7 @@ import (
 	"image/draw"
 	"time"
 
+	"github.com/ev3go/ev3dev/fb"
 	"github.com/ev3go/evb"
 )
 
@@ -28,10 +29,11 @@ func main() {
 	time.Sleep(10 * time.Second)
 }
 
-var gopher = &evb.RGB565{
+var gopher = &fb.RGB565{
 	Pix: []uint8{
 		<snip image data bytes>
 	},
+	Stride: 440,
 	Rect: image.Rectangle{
 		Min: image.Point{
 			X: 0,
@@ -43,5 +45,5 @@ var gopher = &evb.RGB565{
 		},
 	},
 }
-
 ```
+
