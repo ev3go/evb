@@ -33,28 +33,36 @@ var LCD = ev3dev.NewFrameBuffer("/dev/fb0", newRGB565With, LCDWidth, LCDHeight, 
 // NewRGB565 returns a new RGB565 image with the given bounds.
 func NewRGB565(r image.Rectangle) *RGB565 {
 	w, h := r.Dx(), r.Dy()
-	pix := make([]uint8, 2*w*h)
-	return &RGB565{Pix: pix, Rect: r}
+	stride := 2 * w
+	pix := make([]uint8, stride*h)
+	return &RGB565{Pix: pix, Stride: stride, Rect: r}
 }
 
 // newRGB565With returns a new RGB565 image with the given bounds,
-// backed by the []byte, pix. If the length of pix does not equal
-// 2*w*h, a error is returned.
-func newRGB565With(pix []byte, r image.Rectangle, _ int) (draw.Image, error) {
+// backed by the []byte, pix. If stride is zero, a working stride
+// is computed. If the length of pix is less than stride*h, an
+// error is returned.
+func newRGB565With(pix []byte, r image.Rectangle, stride int) (draw.Image, error) {
 	w, h := r.Dx(), r.Dy()
-	if len(pix) != 2*w*h {
+	if stride == 0 {
+		stride = 2 * w
+	}
+	if len(pix) < stride*h {
 		return nil, errors.New("ev3dev: bad pixel buffer length")
 	}
-	return &RGB565{Pix: pix, Rect: r}, nil
+	return &RGB565{Pix: pix, Stride: stride, Rect: r}, nil
 }
 
 // RGB565 is an in-memory image whose At method returns Pixel565 values.
 type RGB565 struct {
 	// Pix holds the image's pixels, as RGB565 values.
 	// The Pixel565 at (x, y) is the pair of bytes at
-	// Pix[2*(x-Rect.Min.X) + (y-Rect.Min.Y)*2*Rect.Dx].
+	// Pix[2*(x-Rect.Min.X) + (y-Rect.Min.Y)*Stride].
 	// Pixel565 values are encoded little endian in Pix.
 	Pix []uint8
+	// Stride is the Pix stride (in bytes) between
+	// vertically adjacent pixels.
+	Stride int
 	// Rect is the image's bounds.
 	Rect image.Rectangle
 }
@@ -86,7 +94,7 @@ func (p *RGB565) Set(x, y int, c color.Color) {
 // pixOffset returns the index into p.Pix for the first byte
 // containing the pixel at (x, y).
 func (p *RGB565) pixOffset(x, y int) int {
-	return 2*(x-p.Rect.Min.X) + (y-p.Rect.Min.Y)*2*p.Rect.Dx()
+	return 2*(x-p.Rect.Min.X) + (y-p.Rect.Min.Y)*p.Stride
 }
 
 // Pixel565 is an RGB565 pixel.
