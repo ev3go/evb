@@ -133,8 +133,8 @@ func rgb565Model(c color.Color) color.Color {
 		return c
 	}
 	r, g, b, _ := c.RGBA()
-	r >>= (bytewid - rwid)
-	g >>= (bytewid - gwid)
-	b >>= (bytewid - bwid)
+	r >>= (2*bytewid - rwid)
+	g >>= (2*bytewid - gwid)
+	b >>= (2*bytewid - bwid)
 	return Pixel565((r&rmask)<<roff | (g&gmask)<<goff | b&bmask)
 }
